@@ -2,7 +2,6 @@ import {
   Column,
   Entity,
   JoinColumn,
-  JoinTable,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -18,7 +17,7 @@ export class Category {
   name: string;
 
   @ManyToOne(() => Category, (category) => category.children)
-  @JoinTable({ name: 'parent_id' })
+  @JoinColumn({ name: 'parent_id' })
   parent?: Category;
 
   @OneToMany(() => Category, (category) => category.parent)

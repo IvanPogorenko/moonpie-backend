@@ -24,9 +24,10 @@ export class CategoriesService {
   }
 
   async getUpperCategories(): Promise<CategoryDto[]> {
-    const categories = await this.categoryRepository.find({
-      where: { parent: null },
-    });
+    const categories = await this.categoryRepository
+      .createQueryBuilder('category')
+      .where('category.parent_id IS NULL')
+      .getMany();
     return categories.map((category) => ({
       name: category.name,
     }));
@@ -37,18 +38,23 @@ export class CategoriesService {
       where: { name: categoryName },
     });
     if (!category) {
-      throw new NotFoundException('');
+      throw new NotFoundException(`Категория "${categoryName}" не найдена`);
     }
-    return category.children.map((child) => ({
+    const children = await this.categoryRepository.find({
+      where: { parent: { id: category.id } },
+    });
+    return children.map((child) => ({
       name: child.name,
     }));
   }
 
   async getAllCategories(): Promise<CategoryTreeDto> {
     const categories = await this.categoryRepository.find({
-      relations: ['children'],
+      relations: ['parent'],
     });
-    const rootCategories = categories.filter((category) => !category.parent);
+    const rootCategories = categories.filter(
+      (category) => category.parent == null,
+    );
     const categoryTree = this.buildCategoryTree(rootCategories, categories);
     return {
       data: categoryTree,

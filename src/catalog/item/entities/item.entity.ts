@@ -8,7 +8,6 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Version } from '@nestjs/common';
 import { Size } from '../../sizes/entities/size.entity';
 import { Color } from '../../color/entities/color.entity';
 import { Category } from '../../categories/entities/category.entity';

@@ -13,6 +13,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import * as nodeCrypto from 'crypto';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { DatabaseModule } from './database/database.module';
 
 if (!globalThis.crypto) {
   globalThis.crypto = {
@@ -24,6 +25,7 @@ declare const __dirname: string;
 
 @Module({
   imports: [
+    DatabaseModule,
     AuthModule,
     UsersModule,
     CatalogModule,
@@ -46,9 +48,10 @@ declare const __dirname: string;
         password: configService.get('DB_PASSWORD', 'postgres'),
         database: configService.get('DB_DATABASE', 'moonpie_service'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: false,
-        migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
-        migrationsRun: true,
+        synchronize: true,
+        migrations: ['dist/migrations/**/*{.ts,.js}'],
+        migrationsRun: false,
+        logging: true,
       }),
     }),
   ],
