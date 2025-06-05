@@ -2,18 +2,16 @@ import {
   Column,
   Entity,
   JoinColumn,
-  JoinTable,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Color } from '../../catalog/color/entities/color.entity';
 import { Size } from '../../catalog/sizes/entities/size.entity';
 import { Item } from '../../catalog/item/entities/item.entity';
-import { Order } from '../../orders/entities/order.entity';
-import { User } from '../../users/entities/user.entity';
+import { Order } from './order.entity';
 
-@Entity('cart_item')
-export class CartItem {
+@Entity('order_item')
+export class OrderItem {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -32,6 +30,12 @@ export class CartItem {
   @Column({ nullable: false })
   count: number;
 
+  @Column({ nullable: false })
+  itemName: string;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
+  unitPrice: number;
+
   @ManyToOne(() => Color)
   @JoinColumn({ name: 'color_id' })
   color: Color;
@@ -44,7 +48,7 @@ export class CartItem {
   @JoinColumn({ name: 'item_id' })
   item: Item;
 
-  @ManyToOne(() => User, { nullable: false })
-  @JoinColumn({ name: 'user_id' })
-  user: User;
+  @ManyToOne(() => Order, (order) => order.orderItems, { nullable: false })
+  @JoinColumn({ name: 'order_id' })
+  order: Order;
 }

@@ -61,7 +61,7 @@ export class ItemService {
   async getItemByName(name: string): Promise<ItemFullInfoDto> {
     const item = await this.itemRepository.findOne({
       where: { name },
-      relations: ['category', 'colors', 'sizes', 'photoUrls'],
+      relations: ['category', 'colors', 'sizes', 'photoUrlList'],
     });
     if (!item) {
       throw new NotFoundException();
@@ -178,7 +178,7 @@ export class ItemService {
   async findByName(name: string): Promise<Item> {
     const item = await this.itemRepository.findOne({
       where: { name },
-      relations: ['category', 'colors', 'sizes'],
+      relations: ['category', 'colors', 'sizes', 'photoUrlList'],
     });
     if (!item) {
       throw new NotFoundException('');

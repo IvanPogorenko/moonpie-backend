@@ -5,12 +5,12 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Order } from './entities/order.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CartService } from '../cart/cart.service';
 import { UsersService } from '../users/users.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderStatusEnum } from '../common/enums/order-status.enum';
-import { OrderFullInfoDto } from './dto/order-full-info.dto';
+import { OrderItem } from './entities/order-item.entity';
 
 @Injectable()
 export class OrdersService {
@@ -19,28 +19,47 @@ export class OrdersService {
     private readonly orderRepository: Repository<Order>,
     private readonly cartService: CartService,
     private readonly usersService: UsersService,
+    private readonly dataSource: DataSource,
   ) {}
 
   async createOrder(userId: number, createOrderDto: CreateOrderDto) {
-    const user = await this.usersService.findById(userId);
-    const cartItems = await this.cartService.getCartItemsForOrder(userId);
-    if (cartItems.length === 0) {
-      throw new BadRequestException('Корзина пуста');
-    }
-    const totalAmount = cartItems.reduce((sum, item) => sum + item.price, 0);
-    const order = this.orderRepository.create({
-      client: user,
-      orderStatus: OrderStatusEnum.CREATED,
-      cartItems,
-      address: createOrderDto.address,
-      city: createOrderDto.city,
-      fullName: createOrderDto.fullName,
-      phoneNumber: createOrderDto.phoneNumber,
-      comment: createOrderDto.comment,
-      totalAmount,
+    return await this.dataSource.transaction(async (manager) => {
+      const user = await this.usersService.findById(userId);
+      const cartItems = await this.cartService.getCartItemsForOrder(userId);
+      if (cartItems.length === 0) {
+        throw new BadRequestException('Корзина пуста');
+      }
+      const totalAmount = cartItems.reduce((sum, item) => sum + item.price, 0);
+      const order = this.orderRepository.create({
+        client: user,
+        orderStatus: OrderStatusEnum.CREATED,
+        address: createOrderDto.address,
+        city: createOrderDto.city,
+        fullName: createOrderDto.fullName,
+        phoneNumber: createOrderDto.phoneNumber,
+        comment: createOrderDto.comment,
+        totalAmount,
+      });
+      const savedOrder = await manager.save(Order, order);
+      for (const cartItem of cartItems) {
+        const orderItem = manager.create(OrderItem, {
+          order: savedOrder,
+          item: cartItem.item,
+          color: cartItem.color,
+          size: cartItem.size,
+          count: cartItem.count,
+          price: cartItem.price,
+          unitPrice: cartItem.item.price,
+          itemName: cartItem.item.name,
+          chest: cartItem.chest,
+          waist: cartItem.waist,
+          hip: cartItem.hip,
+        });
+        await manager.save(OrderItem, orderItem);
+      }
+      await this.cartService.clearCart(userId);
+      return savedOrder;
     });
-    await this.orderRepository.save(order);
-    await this.cartService.clearCart(userId);
   }
 
   async getOrders(
@@ -49,17 +68,17 @@ export class OrdersService {
   ): Promise<Order[]> {
     await this.usersService.findById(userId);
     const queryBuilder = this.orderRepository
-      .createQueryBuilder('order')
-      .leftJoinAndSelect('order.user', 'user')
-      .leftJoinAndSelect('order.cartItems', 'cartItems')
-      .leftJoinAndSelect('cartItems.item', 'item')
-      .leftJoinAndSelect('cartItems.color', 'color')
-      .leftJoinAndSelect('cartItems.size', 'size')
+      .createQueryBuilder('orderEntity')
+      .leftJoinAndSelect('orderEntity.client', 'client')
+      .leftJoinAndSelect('orderEntity.orderItems', 'orderItems')
+      .leftJoinAndSelect('orderItems.item', 'item')
+      .leftJoinAndSelect('orderItems.color', 'color')
+      .leftJoinAndSelect('orderItems.size', 'size')
       .leftJoinAndSelect('item.photoUrlList', 'photos')
-      .where('order.user.id = :userId', { userId })
-      .orderBy('order.createdAt', 'DESC');
+      .where('orderEntity.client.id = :userId', { userId })
+      .orderBy('orderEntity.id', 'DESC');
     if (orderStatus) {
-      queryBuilder.andWhere('order.orderStatus = :orderStatus', {
+      queryBuilder.andWhere('orderEntity.orderStatus = :orderStatus', {
         orderStatus,
       });
     }
@@ -68,16 +87,16 @@ export class OrdersService {
 
   async getOrderById(orderId: number, userId?: number): Promise<Order> {
     const queryBuilder = this.orderRepository
-      .createQueryBuilder('order')
-      .leftJoinAndSelect('order.user', 'user')
-      .leftJoinAndSelect('order.cartItems', 'cartItems')
-      .leftJoinAndSelect('cartItems.item', 'item')
-      .leftJoinAndSelect('cartItems.color', 'color')
-      .leftJoinAndSelect('cartItems.size', 'size')
+      .createQueryBuilder('orderEntity')
+      .leftJoinAndSelect('orderEntity.client', 'client')
+      .leftJoinAndSelect('orderEntity.orderItems', 'orderItems')
+      .leftJoinAndSelect('orderItems.item', 'item')
+      .leftJoinAndSelect('orderItems.color', 'color')
+      .leftJoinAndSelect('orderItems.size', 'size')
       .leftJoinAndSelect('item.photoUrlList', 'photos')
-      .where('order.id = :orderId', { orderId });
+      .where('orderEntity.id = :orderId', { orderId });
     if (userId) {
-      queryBuilder.andWhere('order.user.id = :userId', { userId });
+      queryBuilder.andWhere('orderEntity.client.id = :userId', { userId });
     }
     const order = await queryBuilder.getOne();
     if (!order) {

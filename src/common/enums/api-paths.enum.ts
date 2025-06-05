@@ -11,7 +11,6 @@ export enum ApiPathsEnum {
   CART = '/cart',
   ORDER = '/order',
   ADMIN_ORDER = ADMIN_PREFIX + '/order',
-  CLIENT_SIGNUP = 'sign-up',
   ADMIN_REGISTER = ADMIN_PREFIX + '/register',
   PROFILE_INFO = '/profile',
   TOKEN = '/token',
