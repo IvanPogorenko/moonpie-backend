@@ -8,7 +8,6 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ClientRegistrationDto } from './dto/client-registration.dto';
 import { AuthorityNameEnum } from '../common/enums/authority-name.enum';
 import * as bcrypt from 'bcrypt';
-import { AdminRegistrationDto } from './dto/admin-registration.dto';
 
 @Injectable()
 export class UsersService {
@@ -41,7 +40,7 @@ export class UsersService {
       firstName: user.firstName,
       lastName: user.lastName,
       middleName: user.middleName,
-      email: user.middleName,
+      email: user.email,
       phoneNumber: user.phone,
     };
   }
@@ -87,30 +86,6 @@ export class UsersService {
       lastName: clientRegistrationDto.lastName,
       middleName: clientRegistrationDto.middleName,
       email: clientRegistrationDto.email,
-      password: hashedPassword,
-      authorities: [userAuthority],
-    });
-    return this.userRepository.save(newUser);
-  }
-
-  async registerEmployOrAdmin(
-    adminRegistrationDto: AdminRegistrationDto,
-  ): Promise<User> {
-    const existingUser = await this.userRepository.findOne({
-      where: { email: adminRegistrationDto.email },
-    });
-    if (existingUser) {
-      throw new Error('Пользователь с таким Email уже существует');
-    }
-    const userAuthority = await this.authorityRepository.findOne({
-      where: { name: adminRegistrationDto.authorityName },
-    });
-    const hashedPassword = await bcrypt.hash(adminRegistrationDto.password, 10);
-    const newUser = this.userRepository.create({
-      firstName: adminRegistrationDto.firstName,
-      lastName: adminRegistrationDto.lastName,
-      middleName: adminRegistrationDto.middleName,
-      email: adminRegistrationDto.email,
       password: hashedPassword,
       authorities: [userAuthority],
     });

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateCategoryDto {
   @ApiProperty({ description: 'Название категории', example: 'Блуза' })
@@ -8,10 +8,10 @@ export class CreateCategoryDto {
   name: string;
 
   @ApiProperty({
-    description: 'Название родительской категории',
-    example: 'Блуза',
+    description: 'ID родительской категории',
+    example: 1,
   })
   @IsOptional()
-  @IsString({ message: 'Название родительской категории должно быть строкой' })
-  parentCategoryName?: string;
+  @IsNumber({}, { message: 'ID должен быть числом' })
+  parentCategoryID?: number;
 }

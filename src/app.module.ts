@@ -14,6 +14,7 @@ import * as nodeCrypto from 'crypto';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { DatabaseModule } from './database/database.module';
+import { AdminPanelModule } from './admin-panel/admin-panel.module';
 
 if (!globalThis.crypto) {
   globalThis.crypto = {
@@ -54,6 +55,7 @@ declare const __dirname: string;
         logging: true,
       }),
     }),
+    AdminPanelModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: JwtAuthGuard }],

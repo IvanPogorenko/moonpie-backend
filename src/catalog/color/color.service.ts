@@ -19,13 +19,4 @@ export class ColorService {
     }
     return color;
   }
-
-  async findAll(): Promise<Color[]> {
-    return this.colorRepository.find();
-  }
-
-  async create(value: string): Promise<Color> {
-    const color = this.colorRepository.create({ value });
-    return this.colorRepository.save(color);
-  }
 }

@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from './entities/category.entity';
 import { Repository } from 'typeorm';
 import { CategoryTreeNodeDto } from './dto/category-tree-node.dto';
-import { CategoryDto } from './dto/category.dto';
 import { CategoryTreeDto } from './dto/category-tree.dto';
 
 @Injectable()
@@ -21,31 +20,6 @@ export class CategoriesService {
       throw new NotFoundException('');
     }
     return category;
-  }
-
-  async getUpperCategories(): Promise<CategoryDto[]> {
-    const categories = await this.categoryRepository
-      .createQueryBuilder('category')
-      .where('category.parent_id IS NULL')
-      .getMany();
-    return categories.map((category) => ({
-      name: category.name,
-    }));
-  }
-
-  async getSubCategories(categoryName: string): Promise<CategoryDto[]> {
-    const category = await this.categoryRepository.findOne({
-      where: { name: categoryName },
-    });
-    if (!category) {
-      throw new NotFoundException(`Категория "${categoryName}" не найдена`);
-    }
-    const children = await this.categoryRepository.find({
-      where: { parent: { id: category.id } },
-    });
-    return children.map((child) => ({
-      name: child.name,
-    }));
   }
 
   async getAllCategories(): Promise<CategoryTreeDto> {

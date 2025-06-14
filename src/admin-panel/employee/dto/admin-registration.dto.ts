@@ -7,7 +7,7 @@ import {
   IsString,
   MinLength,
 } from 'class-validator';
-import { AuthorityNameEnum } from '../../common/enums/authority-name.enum';
+import { AuthorityNameEnum } from '../../../common/enums/authority-name.enum';
 
 export class AdminRegistrationDto {
   @ApiProperty({ description: 'Имя пользователя', example: 'Иван' })

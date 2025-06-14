@@ -8,8 +8,7 @@ import {
 } from 'typeorm';
 import { OrderStatusEnum } from '../../common/enums/order-status.enum';
 import { User } from '../../users/entities/user.entity';
-import { CartItem } from '../../cart/entities/cart-item.entity';
-import { OrderItem } from "./order-item.entity";
+import { OrderItem } from './order-item.entity';
 
 @Entity('order')
 export class Order {

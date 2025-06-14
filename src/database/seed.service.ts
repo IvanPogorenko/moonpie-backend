@@ -5,12 +5,16 @@ import { Category } from '../catalog/categories/entities/category.entity';
 import { Color } from '../catalog/color/entities/color.entity';
 import { Size } from '../catalog/sizes/entities/size.entity';
 import { Item } from '../catalog/item/entities/item.entity';
-import { Photo } from '../catalog/photos/entity/photo.entity';
+import { Photo } from '../admin-panel/admin-catalog/photos/entity/photo.entity';
 import * as console from 'console';
+import { Authority } from '../users/entities/authority.entity';
+import { AuthorityNameEnum } from '../common/enums/authority-name.enum';
 
 @Injectable()
 export class SeedService implements OnModuleInit {
   constructor(
+    @InjectRepository(Authority)
+    private authorityRepository: Repository<Authority>,
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
     @InjectRepository(Color)
@@ -37,9 +41,22 @@ export class SeedService implements OnModuleInit {
       await this.seedColors();
       await this.seedSizes();
       await this.seedItems();
+      await this.seedAuthority();
       console.log('База данных успешно заполнена начальными данными');
     } catch (error) {
       console.error('Ошибка при заполнении базы данных:', error);
+    }
+  }
+
+  private async seedAuthority() {
+    const authorities = [
+      { name: AuthorityNameEnum.USER, description: 'Клиент магазина' },
+      { name: AuthorityNameEnum.ADMIN, description: 'Администратор магазина' },
+      { name: AuthorityNameEnum.EMPLOYEE, description: 'Работник магазина' },
+    ];
+    for (const authorityData of authorities) {
+      const authority = this.authorityRepository.create(authorityData);
+      await this.authorityRepository.save(authority);
     }
   }
 

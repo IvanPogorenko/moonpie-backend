@@ -3,7 +3,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { ItemModule } from './item/item.module';
 import { ColorModule } from './color/color.module';
 import { SizesModule } from './sizes/sizes.module';
-import { PhotosModule } from './photos/photos.module';
+import { PhotosModule } from '../admin-panel/admin-catalog/photos/photos.module';
 
 @Module({
   imports: [

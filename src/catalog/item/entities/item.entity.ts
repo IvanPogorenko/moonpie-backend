@@ -11,7 +11,7 @@ import {
 import { Size } from '../../sizes/entities/size.entity';
 import { Color } from '../../color/entities/color.entity';
 import { Category } from '../../categories/entities/category.entity';
-import { Photo } from '../../photos/entity/photo.entity';
+import { Photo } from '../../../admin-panel/admin-catalog/photos/entity/photo.entity';
 
 @Entity('catalog_item')
 export class Item {

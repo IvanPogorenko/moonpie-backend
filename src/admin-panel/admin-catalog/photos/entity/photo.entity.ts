@@ -5,7 +5,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Item } from '../../item/entities/item.entity';
+import { Item } from '../../../../catalog/item/entities/item.entity';
 
 @Entity('photo')
 export class Photo {

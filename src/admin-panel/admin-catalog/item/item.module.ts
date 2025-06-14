@@ -2,22 +2,21 @@ import { Module } from '@nestjs/common';
 import { ItemService } from './item.service';
 import { ItemController } from './item.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Item } from './entities/item.entity';
-import { CategoriesModule } from '../categories/categories.module';
+import { Item } from '../../../catalog/item/entities/item.entity';
 import { ColorModule } from '../color/color.module';
-import { SizesModule } from '../sizes/sizes.module';
-import { PhotosModule } from '../../admin-panel/admin-catalog/photos/photos.module';
+import { SizeModule } from '../size/size.module';
+import { PhotosModule } from '../photos/photos.module';
+import { CategoryModule } from '../category/category.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Item]),
-    CategoriesModule,
     ColorModule,
-    SizesModule,
+    SizeModule,
     PhotosModule,
+    CategoryModule,
   ],
   controllers: [ItemController],
   providers: [ItemService],
-  exports: [ItemService],
 })
 export class ItemModule {}
